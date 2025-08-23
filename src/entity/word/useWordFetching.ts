@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WordRepository } from './repository';
 import { Word } from './interface';
 
-export function useWordFetching() {
+export function useWordFetching({ query }: { query: string }) {
   const [words, setWords] = useState<Word[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [isMounted, setIsMounted] = useState(true);
+  const isMounted = useRef<boolean>(false);
 
   const loadMore = () => {
     if (!loading && hasMore) {
@@ -16,34 +16,41 @@ export function useWordFetching() {
   };
 
   useEffect(() => {
-    setIsMounted(true);
+    setWords([]);
+    setPage(1);
+    setHasMore(true);
+  }, [query]);
+
+  useEffect(() => {
+    isMounted.current = true;
     return () => {
-      setIsMounted(false);
+      isMounted.current = false;
     };
   }, []);
 
   useEffect(() => {
-    if (!isMounted) return;
-    
+    if (!isMounted.current) return;
+
     let isCancelled = false;
-    
+
     const fetchWords = async () => {
       try {
         setLoading(true);
         const newWords = await WordRepository.getAll({
-          limit: 15,
+          limit: 30,
           page,
+          query,
         });
 
-        if (!isCancelled && isMounted) {
+        if (!isCancelled && isMounted.current) {
           setWords(prevWords => {
-            // Filter out duplicates by checking word IDs
             const existingIds = new Set(prevWords.map(w => w.id));
-            const uniqueNewWords = newWords.filter(word => !existingIds.has(word.id));
+            const uniqueNewWords = newWords.filter(
+              word => !existingIds.has(word.id),
+            );
             return [...prevWords, ...uniqueNewWords];
           });
 
-          // If we got fewer items than requested, we've reached the end
           if (newWords.length < 15) {
             setHasMore(false);
           }
@@ -51,7 +58,7 @@ export function useWordFetching() {
       } catch (error) {
         console.error('Error fetching words:', error);
       } finally {
-        if (isMounted) {
+        if (isMounted.current) {
           setLoading(false);
         }
       }
@@ -62,7 +69,7 @@ export function useWordFetching() {
     return () => {
       isCancelled = true;
     };
-  }, [page, isMounted]);
+  }, [page, query]);
 
   return {
     words,

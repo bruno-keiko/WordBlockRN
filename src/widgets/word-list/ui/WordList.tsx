@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { WordCard } from '../../../shared/ui';
 import { Word } from '@/entity/word/interface';
@@ -24,7 +24,10 @@ const WordList = ({
   words: Word[];
   onEndReached: () => void;
   loading: boolean;
+  hasMore: boolean;
 }) => {
+  const onEndReachedCalledDuringMomentum = useRef(true);
+
   const renderWordItem = ({ item }: { item: Word }) => (
     <WordCard word={item.id + ') ' + item.word} onPress={() => {}} />
   );
@@ -32,7 +35,10 @@ const WordList = ({
   const keyExtractor = (item: Word) => item.id.toString();
 
   const handleEndReached = () => {
-    if (!loading) onEndReached();
+    if (!onEndReachedCalledDuringMomentum.current && !loading) {
+      onEndReached();
+      onEndReachedCalledDuringMomentum.current = true;
+    }
   };
 
   return (
@@ -43,8 +49,11 @@ const WordList = ({
       keyExtractor={keyExtractor}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
+      onMomentumScrollBegin={() => {
+        onEndReachedCalledDuringMomentum.current = false;
+      }}
       ListFooterComponent={loading ? ListFooterComponent : null}
-      ListEmptyComponent={ListEmptyComponent}
+      ListEmptyComponent={!loading ? ListEmptyComponent : null}
       showsVerticalScrollIndicator={false}
       ItemSeparatorComponent={Separator}
     />
