@@ -21,7 +21,7 @@ const Button = ({
   backgroundColor = theme.colors.white,
   height = 54,
   borderRadius = 16,
-  marginHorizontal = 16,
+  marginHorizontal,
   marginTop = 20,
 }: ButtonProps) => {
   return (
@@ -39,7 +39,9 @@ const Button = ({
         style,
       ]}
     >
-      <Typography family="bold" size={16} color="black">{title}</Typography>
+      <Typography family="bold" size={16} color="black">
+        {title}
+      </Typography>
     </Pressable>
   );
 };
