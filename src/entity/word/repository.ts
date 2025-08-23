@@ -3,7 +3,7 @@ import { Word } from './interface';
 
 export class WordRepository {
   static async getAll({
-    limit = 100,
+    limit = 20,
     page = 1,
   }: {
     limit?: number;

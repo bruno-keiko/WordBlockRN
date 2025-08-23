@@ -4,27 +4,35 @@ import { WordCard } from '../../../shared/ui';
 import { Word } from '@/entity/word/interface';
 import { theme } from '@/shared/constants/theme';
 
-const ListFooterComponent = () => {
-  return <View style={styles.footer} />;
-};
-
 const ListEmptyComponent = () => {
   return <View style={styles.empty} />;
+};
+
+const ListFooterComponent = () => {
+  return <View style={styles.footer} />;
 };
 
 const Separator = () => {
   return <View style={styles.separator} />;
 };
 
-const WordList = ({ words }: { words: Word[] }) => {
+const WordList = ({
+  words,
+  onEndReached,
+  loading,
+}: {
+  words: Word[];
+  onEndReached: () => void;
+  loading: boolean;
+}) => {
   const renderWordItem = ({ item }: { item: Word }) => (
-    <WordCard word={item.word} onPress={() => {}} />
+    <WordCard word={item.id + ') ' + item.word} onPress={() => {}} />
   );
 
   const keyExtractor = (item: Word) => item.id.toString();
 
   const handleEndReached = () => {
-    console.log('End reached');
+    if (!loading) onEndReached();
   };
 
   return (
@@ -35,7 +43,7 @@ const WordList = ({ words }: { words: Word[] }) => {
       keyExtractor={keyExtractor}
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
-      ListFooterComponent={ListFooterComponent}
+      ListFooterComponent={loading ? ListFooterComponent : null}
       ListEmptyComponent={ListEmptyComponent}
       showsVerticalScrollIndicator={false}
       ItemSeparatorComponent={Separator}
