@@ -1,37 +1,28 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Typography } from './src/shared/ui/Typography';
+import Button from './src/shared/ui/Button';
+import Input from './src/shared/ui/Input';
+import { theme } from './src/shared/constants/theme';
+import WordCard from './src/shared/ui/WordCard';
+import WordList from './src/widgets/word-list/ui/WordList';
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <AppContent />
     </SafeAreaProvider>
   );
 }
 
 function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
   return (
     <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+      <Typography>AppContent</Typography>
+      <Button title="Button" onPress={() => {}} />
+      <Input placeholder="Search" onChangeText={() => {}} />
+      <WordCard word="word" onPress={() => {}} />
+      <WordList />
     </View>
   );
 }
@@ -39,6 +30,8 @@ function AppContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background,
+    padding: 16,
   },
 });
 
