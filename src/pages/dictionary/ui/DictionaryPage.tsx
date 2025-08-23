@@ -9,7 +9,7 @@ import { useWordFetching } from '@/entity/word/useWordFetching';
 const DictionaryPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { words, loadMore } = useWordFetching();
+  const { words, loadMore, loading } = useWordFetching();
 
   console.log('words', words);
   return (
@@ -19,7 +19,7 @@ const DictionaryPage = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <WordList words={words} onEndReached={loadMore} />
+      <WordList words={words} onEndReached={loadMore} loading={loading} />
     </View>
   );
 };
