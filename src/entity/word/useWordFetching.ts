@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { WordRepository } from './repository';
 import { Word } from './interface';
 
-export function useWordFetching({ query }: { query: string }) {
+export function useWordFetching({
+  query,
+  filter = 'all',
+}: {
+  query: string;
+  filter: 'all' | 'learned' | 'notLearned';
+}) {
   const [words, setWords] = useState<Word[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -19,7 +25,7 @@ export function useWordFetching({ query }: { query: string }) {
     setWords([]);
     setPage(1);
     setHasMore(true);
-  }, [query]);
+  }, [query, filter]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -40,6 +46,7 @@ export function useWordFetching({ query }: { query: string }) {
           limit: 30,
           page,
           query,
+          filter,
         });
 
         if (!isCancelled && isMounted.current) {
@@ -69,7 +76,7 @@ export function useWordFetching({ query }: { query: string }) {
     return () => {
       isCancelled = true;
     };
-  }, [page, query]);
+  }, [page, query, filter]);
 
   return {
     words,

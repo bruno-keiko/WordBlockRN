@@ -6,37 +6,53 @@ export class WordRepository {
     limit = 20,
     page = 1,
     query = '',
+    filter = 'all',
   }: {
     limit?: number;
     page?: number;
     query?: string;
+    filter?: 'all' | 'learned' | 'notLearned';
   }): Promise<Word[]> {
     const db = await getDBConnection();
     const trimmedQuery = query.trim();
-    console.log(query);
+    const offset = (page - 1) * limit;
 
-    if (trimmedQuery === '') {
-      const [result] = await db.executeSql(
-        `SELECT * FROM words LIMIT ? OFFSET ?`,
-        [limit, (page - 1) * limit],
-      );
-      return result.rows
-        .raw()
-        .map((row: any) => ({ ...row, learned: !!row.learned }));
+    let sql = 'SELECT * FROM words';
+    const whereClauses: string[] = [];
+    const params: any[] = [];
+
+    if (filter === 'learned') {
+      whereClauses.push('learned = 1');
+    } else if (filter === 'notLearned') {
+      whereClauses.push('learned = 0');
     }
 
-    const [result] = await db.executeSql(
-      `SELECT * FROM words 
-       WHERE LOWER(word) LIKE LOWER(?)
-       ORDER BY CASE
-         WHEN LOWER(word) = LOWER(?) THEN 0  -- Exact match first
-         WHEN LOWER(word) LIKE LOWER(?) || '%' THEN 1  -- Starts with next
-         ELSE 2  -- Contains anywhere last
-       END, word ASC
-       LIMIT ? OFFSET ?`,
-      [`%${trimmedQuery}%`, trimmedQuery, trimmedQuery, limit, (page - 1) * limit],
-    );
-    console.log(result.rows.raw());
+    if (trimmedQuery !== '') {
+      whereClauses.push('LOWER(word) LIKE LOWER(?)');
+      params.push(`%${trimmedQuery}%`);
+    }
+
+    if (whereClauses.length > 0) {
+      sql += ` WHERE ${whereClauses.join(' AND ')}`;
+    }
+
+    if (trimmedQuery !== '') {
+      sql += `
+        ORDER BY CASE
+          WHEN LOWER(word) = LOWER(?) THEN 0
+          WHEN LOWER(word) LIKE LOWER(?) || '%' THEN 1
+          ELSE 2
+        END, word ASC
+      `;
+      params.push(trimmedQuery, trimmedQuery);
+    } else {
+      sql += ' ORDER BY word ASC';
+    }
+
+    sql += ' LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    const [result] = await db.executeSql(sql, params);
 
     return result.rows
       .raw()

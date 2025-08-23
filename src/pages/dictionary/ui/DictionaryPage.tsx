@@ -5,12 +5,14 @@ import WordList from '@widgets/word-list/ui/WordList';
 import { theme } from '@/shared/constants/theme';
 import { StyleSheet } from 'react-native';
 import { useWordFetching } from '@/entity/word/useWordFetching';
+import Filter from './Filter';
 
 const DictionaryPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [activeFilter, setActiveFilter] = useState<'all' | 'learned' | 'notLearned'>('all');
   const { words, loadMore, loading } = useWordFetching({
     query: searchQuery,
+    filter: activeFilter,
   });
 
   return (
@@ -20,7 +22,13 @@ const DictionaryPage = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <WordList words={words} onEndReached={loadMore} loading={loading} hasMore={true} />
+      <Filter activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+      <WordList
+        words={words}
+        onEndReached={loadMore}
+        loading={loading}
+        hasMore={true}
+      />
     </View>
   );
 };
