@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Input, Button } from '@/shared/ui';
+import { Input } from '@/shared/ui';
 import WordList from '@widgets/word-list/ui/WordList';
 import { theme } from '@/shared/constants/theme';
-
 import { StyleSheet } from 'react-native';
+import { useWordFetching } from '@/entity/word/useWordFetching';
 
 const DictionaryPage = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { words } = useWordFetching();
+
+  console.log('words', words);
   return (
     <View style={styles.container}>
-      <Input placeholder="Search" onChangeText={() => {}} />
-      <WordList />
-      <Button title="Button" onPress={() => {}} />
+      <Input
+        placeholder="Search"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <WordList words={words} />
     </View>
   );
 };

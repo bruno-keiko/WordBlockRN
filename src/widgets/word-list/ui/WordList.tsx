@@ -1,12 +1,13 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
 import { WordCard } from '../../../shared/ui';
+import { Word } from '@/entity/word/interface';
 
-const WordList = () => {
+const WordList = ({ words }: { words: Word[] }) => {
   return (
     <ScrollView>
-      {Array.from({ length: 30 }).map((_, index) => (
-        <WordCard key={index} word="word" onPress={() => {}} />
+      {words.map((word, index) => (
+        <WordCard key={index} word={word.word} onPress={() => {}} />
       ))}
     </ScrollView>
   );
