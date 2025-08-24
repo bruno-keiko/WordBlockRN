@@ -1,47 +1,87 @@
-import { StatusBar } from 'react-native';
+import { StatusBar, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { theme } from '@/shared/constants/theme';
 import DictionaryPage from '@/pages/dictionary/ui/DictionaryPage';
 import { initDB } from '@/shared/lib/utils/dbInit';
 import { useEffect } from 'react';
-import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WordPage from '@/pages/word/ui/WordPage';
 import { RootStackParamList } from '@/shared/types/navigaiton';
 import AddWordPage from '@/pages/add-word/';
 import { NativeModules } from 'react-native';
 import DevelopmentSettings from './src/pages/DevelopmentSettings';
-import BlockScreen from './src/pages/BlockScreen';
 import UsageStatsErrorBoundary from '@/shared/ui/UsageStatsErrorBoundary';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import LearningStatsScreen from '@/pages/stats';
 
 const isUsageStatsAvailable = !!NativeModules.UsageStatsModule;
-console.log('UsageStatsModule available:', isUsageStatsAvailable);
 
-const RootStack = createNativeStackNavigator({
-  screens: {
-    DictionaryPage: {
-      screen: DictionaryPage,
-    },
-    WordPage: {
-      screen: WordPage,
-    },
-    AddWordPage: {
-      screen: AddWordPage,
-    },
-    DevelopmentSettings: {
-      screen: DevelopmentSettings,
-    },
-    BlockScreen: {
-      screen: BlockScreen,
-    },
-  },
-  screenOptions: {
-    headerShown: false,
-  },
-  initialRouteName: 'DictionaryPage',
-});
 
-const Navigation = createStaticNavigation(RootStack);
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+const TabNavigator = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
+      <Tab.Screen
+        name="DictionaryPage"
+        component={DictionaryPage}
+        options={{
+          headerShown: false,
+          title: 'Dictionary',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Text style={{ fontSize: 20 }}>📖</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AddWordPage"
+        component={AddWordPage}
+        options={{
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>➕</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Stats"
+        component={LearningStatsScreen}
+        options={{
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>📊</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="DevelopmentSettings"
+        component={DevelopmentSettings}
+        options={{
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>⚙️</Text>,
+          title: 'Settings',
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+const RootStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="MainTabs"
+        component={TabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="WordPage"
+        component={WordPage}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 declare global {
   namespace ReactNavigation {
@@ -70,7 +110,9 @@ export default function App() {
           backgroundColor={theme.colors.background}
           barStyle="light-content"
         />
-        <Navigation />
+        <NavigationContainer>
+          <RootStack />
+        </NavigationContainer>
       </SafeAreaProvider>
     </UsageStatsErrorBoundary>
   );

@@ -12,7 +12,7 @@ import {
 import UsageStatsService from '@/shared/lib/utils/UsageStatsService';
 import { Word } from '@/entity/word/interface';
 import { theme } from '@/shared/constants/theme';
-
+import { LearningStatsRepository } from '@/entity/statistics/repository';
 
 interface BlockScreenProps {
   onWordLearned: () => void;
@@ -23,11 +23,6 @@ const BlockScreen: React.FC<BlockScreenProps> = ({
   onWordLearned,
   currentWord,
 }) => {
-//   const currentWord = {
-//     id: '1',
-//     word: 'test',
-//     definition: 'test',
-//   };
   const [timeSpent, setTimeSpent] = useState(0);
   const [canProceed, setCanProceed] = useState(false);
   const [startTime] = useState(Date.now());
@@ -78,8 +73,11 @@ const BlockScreen: React.FC<BlockScreenProps> = ({
 
     // Reset usage tracking
     UsageStatsService.resetUsageTracking();
+    LearningStatsRepository.incrementLearnedWord(
+      timeSpent,
+      new Date().toISOString(),
+    );
 
-    // Mark word as learned and continue
     onWordLearned();
   };
 

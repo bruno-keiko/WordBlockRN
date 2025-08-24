@@ -13,6 +13,7 @@ import BlockScreen from '../../BlockScreen';
 import PermissionSetup from '../../PermissionSetup';
 import BlockingSettings from '../../BlockingSettings';
 import { updateLearned } from '@/feature/learn-word';
+import { LearningStatsRepository } from '@/entity/statistics/repository';
 
 const DictionaryPage = () => {
   const [currentScreen, setCurrentScreen] = useState<
@@ -55,8 +56,6 @@ const DictionaryPage = () => {
     onWordLearned: handleWordLearned,
     onBlockTriggered: handleBlockTriggered,
   });
-
-  console.log('Usage stats:', isBlocked);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -136,20 +135,11 @@ const DictionaryPage = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Input
-          placeholder="Search words..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => setCurrentScreen('settings')}
-        >
-          <Text style={styles.settingsButtonText}>⚙️</Text>
-        </TouchableOpacity>
-      </View>
+      <Input
+        placeholder="Search words..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
       <Filter activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
 
@@ -160,12 +150,6 @@ const DictionaryPage = () => {
         hasMore={true}
         activeFilter={activeFilter}
       />
-
-      <View style={styles.buttonContainer}>
-        <RandomWordButton />
-        <AddWordButton />
-      </View>
-
       {__DEV__ && (
         <View style={styles.debugContainer}>
           <Text style={styles.debugText}>

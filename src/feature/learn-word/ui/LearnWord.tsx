@@ -4,6 +4,7 @@ import { Button } from '@/shared/ui';
 import { Word } from '@/entity/word/interface';
 import { Typography } from '@/shared/ui';
 import { updateLearned } from '../model/updateLearned';
+import { LearningStatsRepository } from '@/entity/statistics/repository';
 
 const LearnWord = ({ word }: { word: Word }) => {
   const [learned, setLearned] = React.useState(word.learned);
@@ -11,11 +12,19 @@ const LearnWord = ({ word }: { word: Word }) => {
 
   const handleLearn = async () => {
     await updateLearned(word.id, true);
+    await LearningStatsRepository.incrementLearnedWord(
+      20,
+      new Date().toISOString(),
+    );
     setLearned(true);
   };
 
   const handleNotLearn = async () => {
     await updateLearned(word.id, false);
+    await LearningStatsRepository.decrementLearnedWord(
+      0,
+      new Date().toISOString(),
+    );
     setLearned(false);
     setTime(20);
   };
@@ -46,28 +55,13 @@ const LearnWord = ({ word }: { word: Word }) => {
 
       <View style={styles.buttonContainer}>
         <Button
-          style={[
-            styles.learnButton,
-            { backgroundColor: time > 0 ? 'gray' : 'white' },
-          ]}
-          disabled={time > 0}
-          title={
-            learned
-              ? 'Mark as not learned'
-              : time > 0
-              ? 'Wait'
-              : 'Mark as learned'
-          }
+          style={styles.learnButton}
+          title={learned ? 'Mark as not learned' : 'Mark as learned'}
           onPress={() => {
             learned ? handleNotLearn() : handleLearn();
           }}
         />
       </View>
-      {time > 0 && (
-        <Typography style={styles.time} size={18} color="white">
-          You can mark learned after {time}s
-        </Typography>
-      )}
     </View>
   );
 };

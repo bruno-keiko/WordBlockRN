@@ -76,12 +76,7 @@ export const useUsageBlocking = ({
   const enableDevelopmentMode = (enabled: boolean, interval: number = 5) => {
     UsageStatsService.setDevelopmentMode(enabled, interval);
   };
-
-  console.log('isBlocked', isBlocked);
-  console.log('currentBlockWord', currentBlockWord);
-  console.log('hasPermission', hasPermission);
-  console.log('usageStats', usageStats);
-
+  
   return {
     isBlocked,
     currentBlockWord,
