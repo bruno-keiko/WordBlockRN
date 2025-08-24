@@ -43,7 +43,7 @@ export function useWordFetching({
       try {
         setLoading(true);
         const newWords = await WordRepository.getAll({
-          limit: 30,
+          limit: 100,
           page,
           query,
           filter,
