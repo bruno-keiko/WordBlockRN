@@ -1,18 +1,12 @@
 import React from 'react';
-import {
-  StyleSheet,
-  TextInput,
-  StyleProp,
-  ViewStyle,
-  TextInputProps,
-} from 'react-native';
+import { StyleSheet, TextInput, StyleProp, TextInputProps, TextStyle } from 'react-native';
 import { theme } from '../constants/theme';
 
 interface InputProps extends TextInputProps {
   placeholder: string;
   onChangeText?: (text: string) => void;
   value?: string;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<TextStyle>;
 }
 const Input = ({
   placeholder,

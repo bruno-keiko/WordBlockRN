@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  View,
   StyleSheet,
   Text,
   Alert,
@@ -11,7 +10,6 @@ import {
 import { Button, Input } from '@/shared/ui';
 import { createWord } from '../model/createWord';
 import { theme } from '@/shared/constants/theme';
-import { Keyboard } from 'react-native';
 
 const AddWordForm = () => {
   const [word, setWord] = React.useState('');
@@ -73,7 +71,7 @@ const AddWordForm = () => {
           value={definition}
           onChangeText={setDefinition}
           placeholder="Enter definition"
-          style={{ height: 100, textAlignVertical: 'top' }}
+          style={styles.multilineInput}
           multiline
         />
         {errors.definition && (
@@ -102,6 +100,10 @@ const styles = StyleSheet.create({
   error: {
     color: theme.colors.red,
     marginBottom: 10,
+  },
+  multilineInput: {
+    height: 100,
+    textAlignVertical: 'top',
   },
 });
 
