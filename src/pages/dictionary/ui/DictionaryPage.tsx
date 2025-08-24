@@ -158,6 +158,7 @@ const DictionaryPage = () => {
         onEndReached={loadMore}
         loading={loading}
         hasMore={true}
+        activeFilter={activeFilter}
       />
 
       <View style={styles.buttonContainer}>

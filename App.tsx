@@ -14,7 +14,6 @@ import DevelopmentSettings from './src/pages/DevelopmentSettings';
 import BlockScreen from './src/pages/BlockScreen';
 import UsageStatsErrorBoundary from '@/shared/ui/UsageStatsErrorBoundary';
 
-// Check if native module is available
 const isUsageStatsAvailable = !!NativeModules.UsageStatsModule;
 console.log('UsageStatsModule available:', isUsageStatsAvailable);
 

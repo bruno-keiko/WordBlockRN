@@ -1,12 +1,24 @@
 import React, { useRef } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
-import { WordCard } from '../../../shared/ui';
+import { WordCard, Typography } from '../../../shared/ui';
 import { Word } from '@/entity/word/interface';
 import { theme } from '@/shared/constants/theme';
 import { useNavigation } from '@react-navigation/native';
 
-const ListEmptyComponent = () => {
-  return <View style={styles.empty} />;
+const ListEmptyComponent = ({
+  activeFilter,
+}: {
+  activeFilter: 'all' | 'learned' | 'notLearned';
+}) => {
+  const message =
+    activeFilter === 'notLearned'
+      ? 'You have no unlearned words. Add new words or review learned words.'
+      : 'No words found. Try a different filter or add new words.';
+  return (
+    <View style={styles.empty}>
+      <Typography>{message}</Typography>
+    </View>
+  );
 };
 
 const ListFooterComponent = () => {
@@ -21,11 +33,13 @@ const WordList = ({
   words,
   onEndReached,
   loading,
+  activeFilter,
 }: {
   words: Word[];
   onEndReached: () => void;
   loading: boolean;
   hasMore: boolean;
+  activeFilter: 'all' | 'learned' | 'notLearned';
 }) => {
   const onEndReachedCalledDuringMomentum = useRef(true);
   const navigation = useNavigation();
@@ -60,7 +74,9 @@ const WordList = ({
         onEndReachedCalledDuringMomentum.current = false;
       }}
       ListFooterComponent={loading ? ListFooterComponent : null}
-      ListEmptyComponent={!loading ? ListEmptyComponent : null}
+      ListEmptyComponent={
+        !loading ? <ListEmptyComponent activeFilter={activeFilter} /> : null
+      }
       showsVerticalScrollIndicator={false}
       ItemSeparatorComponent={Separator}
     />
@@ -76,6 +92,8 @@ const styles = StyleSheet.create({
   },
   empty: {
     height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   separator: {
     height: 2,
