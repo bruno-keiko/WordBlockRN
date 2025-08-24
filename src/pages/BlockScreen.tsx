@@ -73,6 +73,7 @@ const BlockScreen: React.FC<BlockScreenProps> = ({
 
     // Reset usage tracking
     UsageStatsService.resetUsageTracking();
+    
     LearningStatsRepository.incrementLearnedWord(
       timeSpent,
       new Date().toISOString(),

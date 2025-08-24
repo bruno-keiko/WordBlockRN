@@ -26,9 +26,8 @@ export const useUsageBlocking = ({
   const [usageStats, setUsageStats] = React.useState<UsageStats | null>(null);
 
   useEffect(() => {
-    requestPermission();
     getRandomWord();
-  }, []);
+  }, [words]);
 
   const requestPermission = async () => {
     const hasPermission = await checkPermission();
@@ -76,7 +75,9 @@ export const useUsageBlocking = ({
   const enableDevelopmentMode = (enabled: boolean, interval: number = 5) => {
     UsageStatsService.setDevelopmentMode(enabled, interval);
   };
-  
+
+  console.log('UsageStatsService', usageStats, isBlocked, currentBlockWord);
+
   return {
     isBlocked,
     currentBlockWord,
