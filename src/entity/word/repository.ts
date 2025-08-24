@@ -66,4 +66,12 @@ export class WordRepository {
       id,
     ]);
   }
+
+  static async getRandomUnlearnedWord(): Promise<Word | null> {
+    const db = await getDBConnection();
+    const [result] = await db.executeSql(
+      'SELECT * FROM words WHERE learned = 0 ORDER BY RANDOM() LIMIT 1',
+    );
+    return result.rows.raw()[0] || null;
+  }
 }

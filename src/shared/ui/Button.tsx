@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, ViewStyle, StyleSheet, Pressable } from 'react-native';
+import { StyleProp, ViewStyle, StyleSheet, Pressable, TextStyle } from 'react-native';
 import { theme } from '../constants/theme';
 import { Typography } from './Typography';
 
@@ -13,6 +13,7 @@ interface ButtonProps {
   marginHorizontal?: number;
   marginTop?: number;
   disabled?: boolean;
+  titleStyle?: StyleProp<TextStyle>;
 }
 
 const Button = ({
@@ -25,6 +26,7 @@ const Button = ({
   borderRadius = 16,
   marginHorizontal,
   marginTop = 20,
+  titleStyle,
 }: ButtonProps) => {
   return (
     <Pressable
@@ -42,7 +44,7 @@ const Button = ({
         style,
       ]}
     >
-      <Typography family="bold" size={16} color="black">
+      <Typography style={titleStyle} family="bold" size={16} color="black">
         {title}
       </Typography>
     </Pressable>

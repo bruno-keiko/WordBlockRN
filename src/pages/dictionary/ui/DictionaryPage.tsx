@@ -6,10 +6,14 @@ import { theme } from '@/shared/constants/theme';
 import { StyleSheet } from 'react-native';
 import { useWordFetching } from '@/entity/word/useWordFetching';
 import Filter from './Filter';
+import RandomWordButton from './RandomWordButton';
+import { AddWordButton } from '@/feature/add-word';
 
 const DictionaryPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'learned' | 'notLearned'>('all');
+  const [activeFilter, setActiveFilter] = useState<
+    'all' | 'learned' | 'notLearned'
+  >('all');
   const { words, loadMore, loading } = useWordFetching({
     query: searchQuery,
     filter: activeFilter,
@@ -29,6 +33,10 @@ const DictionaryPage = () => {
         loading={loading}
         hasMore={true}
       />
+      <View style={styles.buttonContainer}>
+        <RandomWordButton />
+        <AddWordButton />
+      </View>
     </View>
   );
 };
@@ -38,6 +46,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
     padding: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 16,
+    marginTop: 8,
   },
 });
 
