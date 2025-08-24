@@ -74,4 +74,12 @@ export class WordRepository {
     );
     return result.rows.raw()[0] || null;
   }
+
+  static async addWord(word: Omit<Word, 'id' | 'learned'>): Promise<void> {
+    const db = await getDBConnection();
+    await db.executeSql(
+      'INSERT INTO words (word, definition, learned) VALUES (?, ?, ?)',
+      [word.word, word.definition, false],
+    );
+  }
 }

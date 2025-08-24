@@ -41,6 +41,7 @@ const Button = ({
           marginHorizontal,
           marginTop,
         },
+        disabled && styles.disabled,
         style,
       ]}
     >
@@ -58,6 +59,9 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.foregroundSecondary,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });
 

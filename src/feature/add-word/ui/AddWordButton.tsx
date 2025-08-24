@@ -2,13 +2,15 @@ import React from 'react';
 import { Button } from '@/shared/ui';
 import { StyleSheet } from 'react-native';
 import { theme } from '@/shared/constants/theme';
+import { useNavigation } from '@react-navigation/native';
 
 const AddWordButton = () => {
+  const navigation = useNavigation();
   return (
     <Button
       titleStyle={styles.titleStyle}
       title="+"
-      onPress={() => {}}
+      onPress={() => navigation.navigate('AddWordPage')}
       style={styles.button}
     />
   );

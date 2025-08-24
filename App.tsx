@@ -8,6 +8,7 @@ import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WordPage from '@/pages/word/ui/WordPage';
 import { RootStackParamList } from '@/shared/types/navigaiton';
+import AddWordPage from '@/pages/add-word/';
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -16,6 +17,9 @@ const RootStack = createNativeStackNavigator({
     },
     WordPage: {
       screen: WordPage,
+    },
+    AddWordPage: {
+      screen: AddWordPage,
     },
   },
   screenOptions: {
