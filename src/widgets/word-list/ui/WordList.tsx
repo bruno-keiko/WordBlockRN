@@ -3,6 +3,7 @@ import { FlatList, View, StyleSheet } from 'react-native';
 import { WordCard } from '../../../shared/ui';
 import { Word } from '@/entity/word/interface';
 import { theme } from '@/shared/constants/theme';
+import { useNavigation } from '@react-navigation/native';
 
 const ListEmptyComponent = () => {
   return <View style={styles.empty} />;
@@ -27,9 +28,15 @@ const WordList = ({
   hasMore: boolean;
 }) => {
   const onEndReachedCalledDuringMomentum = useRef(true);
+  const navigation = useNavigation();
 
   const renderWordItem = ({ item }: { item: Word }) => (
-    <WordCard word={item.id + ') ' + item.word} onPress={() => {}} />
+    <WordCard
+      word={item.id + ') ' + item.word}
+      onPress={() => {
+        navigation.navigate('WordPage');
+      }}
+    />
   );
 
   const keyExtractor = (item: Word) => item.id.toString();
