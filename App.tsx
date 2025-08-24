@@ -9,6 +9,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WordPage from '@/pages/word/ui/WordPage';
 import { RootStackParamList } from '@/shared/types/navigaiton';
 import AddWordPage from '@/pages/add-word/';
+import { NativeModules } from 'react-native';
+import DevelopmentSettings from './src/pages/DevelopmentSettings';
+import BlockScreen from './src/pages/BlockScreen';
+import UsageStatsErrorBoundary from '@/shared/ui/UsageStatsErrorBoundary';
+
+// Check if native module is available
+const isUsageStatsAvailable = !!NativeModules.UsageStatsModule;
+console.log('UsageStatsModule available:', isUsageStatsAvailable);
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -20,6 +28,12 @@ const RootStack = createNativeStackNavigator({
     },
     AddWordPage: {
       screen: AddWordPage,
+    },
+    DevelopmentSettings: {
+      screen: DevelopmentSettings,
+    },
+    BlockScreen: {
+      screen: BlockScreen,
     },
   },
   screenOptions: {
@@ -38,15 +52,27 @@ declare global {
 
 export default function App() {
   useEffect(() => {
-    initDB();
+    const initializeApp = async () => {
+      try {
+        await initDB();
+        console.log('Database initialized successfully');
+      } catch (error) {
+        console.error('Database initialization failed:', error);
+      }
+    };
+
+    initializeApp();
   }, []);
+
   return (
-    <SafeAreaProvider>
-      <StatusBar
-        backgroundColor={theme.colors.background}
-        barStyle="light-content"
-      />
-      <Navigation />
-    </SafeAreaProvider>
+    <UsageStatsErrorBoundary>
+      <SafeAreaProvider>
+        <StatusBar
+          backgroundColor={theme.colors.background}
+          barStyle="light-content"
+        />
+        <Navigation />
+      </SafeAreaProvider>
+    </UsageStatsErrorBoundary>
   );
 }

@@ -9,4 +9,6 @@ export type RootStackParamList = {
   DictionaryPage: undefined;
   WordPage: { word: Word };
   AddWordPage: undefined;
+  DevelopmentSettings: undefined;
+  BlockScreen: undefined;
 };
