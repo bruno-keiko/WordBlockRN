@@ -4,12 +4,10 @@ import { theme } from '@/shared/constants/theme';
 import DictionaryPage from '@/pages/dictionary/ui/DictionaryPage';
 import { initDB } from '@/shared/lib/utils/dbInit';
 import { useEffect } from 'react';
-import {
-  createStaticNavigation,
-  StaticParamList,
-} from '@react-navigation/native';
+import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WordPage from '@/pages/word/ui/WordPage';
+import { RootStackParamList } from '@/shared/types/navigaiton';
 
 const RootStack = createNativeStackNavigator({
   screens: {
@@ -27,7 +25,6 @@ const RootStack = createNativeStackNavigator({
 });
 
 const Navigation = createStaticNavigation(RootStack);
-type RootStackParamList = StaticParamList<typeof RootStack>;
 
 declare global {
   namespace ReactNavigation {

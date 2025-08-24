@@ -34,7 +34,7 @@ const WordList = ({
     <WordCard
       word={item.id + ') ' + item.word}
       onPress={() => {
-        navigation.navigate('WordPage');
+        navigation.navigate('WordPage', { word: item });
       }}
     />
   );
