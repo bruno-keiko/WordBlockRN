@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Word } from '@/entity/word/interface';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { Button } from '@/shared/ui';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { theme } from '@/shared/constants/theme';
+import { LearnWord } from '@/feature/learn-word';
 
 type RootStackParamList = {
   Dictionary: undefined;
@@ -15,7 +15,6 @@ type WordPageRouteProp = RouteProp<RootStackParamList, 'WordPage'>;
 const WordPage = () => {
   const route = useRoute<WordPageRouteProp>();
   const { word } = route.params;
-  const navigation = useNavigation();
 
   return (
     <ScrollView
@@ -26,22 +25,12 @@ const WordPage = () => {
         <View style={styles.wordHeader}>
           <Text style={styles.wordTitle}>{word.word}</Text>
         </View>
-
         <View style={styles.definitionSection}>
           <Text style={styles.sectionLabel}>Definition</Text>
           <Text style={styles.definition}>{word.definition}</Text>
         </View>
       </View>
-
-      <View style={styles.buttonContainer}>
-        <Button
-          style={styles.learnButton}
-          title="Start Learning"
-          onPress={() => {
-            // Add your learn functionality here
-          }}
-        />
-      </View>
+      <LearnWord word={word} />
     </ScrollView>
   );
 };
@@ -96,36 +85,6 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     color: theme.colors.white,
     textAlign: 'left',
-  },
-  buttonContainer: {
-    paddingHorizontal: 4,
-  },
-  backButton: {
-    height: 60,
-    width: 60,
-    borderRadius: 40,
-    backgroundColor: theme.colors.backgroundSecondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  backButtonText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-  },
-  learnButton: {
-    marginTop: 0,
-    paddingVertical: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
 });
 

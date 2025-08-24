@@ -12,11 +12,13 @@ interface ButtonProps {
   borderRadius?: number;
   marginHorizontal?: number;
   marginTop?: number;
+  disabled?: boolean;
 }
 
 const Button = ({
   onPress,
   style,
+  disabled,
   title,
   backgroundColor = theme.colors.white,
   height = 54,
@@ -27,6 +29,7 @@ const Button = ({
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       style={[
         styles.button,
         {
