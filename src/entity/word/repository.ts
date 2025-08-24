@@ -58,4 +58,12 @@ export class WordRepository {
       .raw()
       .map((row: any) => ({ ...row, learned: !!row.learned }));
   }
+
+  static async updateLearned(id: number, learned: boolean): Promise<void> {
+    const db = await getDBConnection();
+    await db.executeSql('UPDATE words SET learned = ? WHERE id = ?', [
+      learned,
+      id,
+    ]);
+  }
 }

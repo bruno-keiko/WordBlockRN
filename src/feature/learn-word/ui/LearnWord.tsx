@@ -3,16 +3,19 @@ import { View, StyleSheet } from 'react-native';
 import { Button } from '@/shared/ui';
 import { Word } from '@/entity/word/interface';
 import { Typography } from '@/shared/ui';
+import { updateLearned } from '../model/updateLearned';
 
 const LearnWord = ({ word }: { word: Word }) => {
   const [learned, setLearned] = React.useState(word.learned);
   const [time, setTime] = React.useState(learned ? 0 : 20);
 
-  const handleLearn = () => {
+  const handleLearn = async () => {
+    await updateLearned(word.id, true);
     setLearned(true);
   };
 
-  const handleNotLearn = () => {
+  const handleNotLearn = async () => {
+    await updateLearned(word.id, false);
     setLearned(false);
     setTime(20);
   };
