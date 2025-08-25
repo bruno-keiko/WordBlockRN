@@ -1,5 +1,3 @@
-// src/screens/BlockScreen.tsx
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,20 +7,23 @@ import {
   Alert,
   BackHandler,
 } from 'react-native';
-import UsageStatsService from '@/shared/lib/utils/UsageStatsService';
 import { Word } from '@/entity/word/interface';
 import { theme } from '@/shared/constants/theme';
 import { LearningStatsRepository } from '@/entity/statistics/repository';
+import { useBlocking } from '../../BlockingContext'; // Import the hook
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/shared/types/navigaiton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface BlockScreenProps {
-  onWordLearned: () => void;
-  currentWord: Word;
-}
+type BlockScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'BlockScreen'
+>;
 
-const BlockScreen: React.FC<BlockScreenProps> = ({
-  onWordLearned,
-  currentWord,
-}) => {
+const BlockScreen: React.FC<BlockScreenProps> = ({ route, navigation }) => {
+  const { stopBlocking, startBlocking } = useBlocking();
+  const { word: currentWord } = route.params;
   const [timeSpent, setTimeSpent] = useState(0);
   const [canProceed, setCanProceed] = useState(false);
   const [startTime] = useState(Date.now());
@@ -59,7 +60,7 @@ const BlockScreen: React.FC<BlockScreenProps> = ({
     return () => clearInterval(timer);
   }, [startTime]);
 
-  const handleLearningComplete = () => {
+  const handleLearningComplete = async () => {
     if (!canProceed) {
       Alert.alert(
         'Please wait',
@@ -71,15 +72,17 @@ const BlockScreen: React.FC<BlockScreenProps> = ({
       return;
     }
 
-    // Reset usage tracking
-    UsageStatsService.resetUsageTracking();
-    
     LearningStatsRepository.incrementLearnedWord(
       timeSpent,
       new Date().toISOString(),
     );
 
-    onWordLearned();
+    stopBlocking();
+    const delayMinutes = await AsyncStorage.getItem('delayMinutes');
+    if (delayMinutes) {
+      startBlocking(parseInt(delayMinutes, 10));
+    }
+    navigation.goBack();
   };
 
   const formatTime = (seconds: number): string => {

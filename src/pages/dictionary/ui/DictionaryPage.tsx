@@ -1,24 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 import { Input } from '@/shared/ui';
 import WordList from '@widgets/word-list/ui/WordList';
 import { theme } from '@/shared/constants/theme';
 import { StyleSheet } from 'react-native';
 import { useWordFetching } from '@/entity/word/useWordFetching';
 import Filter from './Filter';
-import RandomWordButton from './RandomWordButton';
-import { AddWordButton } from '@/feature/add-word';
-import { useUsageBlocking } from '@/shared/lib/utils/useUsageBlocking';
-import BlockScreen from '../../BlockScreen';
-import PermissionSetup from '../../PermissionSetup';
-import BlockingSettings from '../../BlockingSettings';
-import { updateLearned } from '@/feature/learn-word';
-import { LearningStatsRepository } from '@/entity/statistics/repository';
 
 const DictionaryPage = () => {
-  const [currentScreen, setCurrentScreen] = useState<
-    'permission' | 'main' | 'settings'
-  >('permission');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<
     'all' | 'learned' | 'notLearned'
@@ -28,110 +17,6 @@ const DictionaryPage = () => {
     query: searchQuery,
     filter: activeFilter,
   });
-
-  // Memoize the callback functions to prevent unnecessary re-renders
-  const handleWordLearned = React.useCallback((wordId: number) => {
-    console.log('Word learned:', wordId);
-    // Add your word learning logic here if needed
-    updateLearned(wordId, true);
-  }, []);
-
-  const handleBlockTriggered = React.useCallback(() => {
-    console.log('Screen time block triggered');
-
-    // Add any additional logic when block is triggered
-  }, []);
-
-  const {
-    isBlocked,
-    currentBlockWord,
-    hasPermission,
-    usageStats,
-    requestPermission,
-    completeLearningSesssion,
-    setBlockingInterval,
-    enableDevelopmentMode,
-  } = useUsageBlocking({
-    words,
-    onWordLearned: handleWordLearned,
-    onBlockTriggered: handleBlockTriggered,
-  });
-
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    const initializeDevelopmentMode = () => {
-      try {
-        timeoutId = setTimeout(() => {
-          enableDevelopmentMode(true, 10);
-          console.log('Development mode initialized');
-        }, 1000);
-      } catch (error) {
-        console.error('Error initializing development mode:', error);
-      }
-    };
-
-    initializeDevelopmentMode();
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, []);
-
-  const handlePermissionGranted = React.useCallback(() => {
-    setTimeout(() => {
-      if (hasPermission) {
-        setCurrentScreen('main');
-      } else {
-        Alert.alert(
-          'Permission not detected',
-          'Please make sure you granted the permission.',
-        );
-      }
-    }, 500);
-  }, [hasPermission]);
-
-  if (isBlocked && currentBlockWord) {
-    return (
-      <BlockScreen
-        onWordLearned={completeLearningSesssion}
-        currentWord={currentBlockWord}
-      />
-    );
-  }
-
-  if (!hasPermission && currentScreen === 'permission') {
-    return (
-      <PermissionSetup
-        onPermissionGranted={handlePermissionGranted}
-        onRequestPermission={requestPermission}
-        hasPermission={hasPermission}
-      />
-    );
-  }
-
-  if (currentScreen === 'settings') {
-    return (
-      <View style={styles.container}>
-        <BlockingSettings
-          onIntervalChange={setBlockingInterval}
-          onDevelopmentModeChange={enableDevelopmentMode}
-          usageStats={usageStats}
-        />
-
-        <View style={styles.navigationContainer}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setCurrentScreen('main')}
-          >
-            <Text style={styles.backButtonText}>← Back to Dictionary</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -150,14 +35,6 @@ const DictionaryPage = () => {
         hasMore={true}
         activeFilter={activeFilter}
       />
-      {__DEV__ && (
-        <View style={styles.debugContainer}>
-          <Text style={styles.debugText}>
-            Debug: {isBlocked ? 'BLOCKED' : 'ACTIVE'} | Permission:{' '}
-            {hasPermission ? 'YES' : 'NO'} | Words: {words.length}
-          </Text>
-        </View>
-      )}
     </View>
   );
 };

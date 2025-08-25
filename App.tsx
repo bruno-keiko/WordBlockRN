@@ -1,25 +1,77 @@
-import { StatusBar, Text, View } from 'react-native';
+import { StatusBar, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { theme } from '@/shared/constants/theme';
 import DictionaryPage from '@/pages/dictionary/ui/DictionaryPage';
 import { initDB } from '@/shared/lib/utils/dbInit';
-import { useEffect } from 'react';
+import { RootStackParamList, TabParamList } from '@/shared/types/navigaiton';
+import { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WordPage from '@/pages/word/ui/WordPage';
-import { RootStackParamList } from '@/shared/types/navigaiton';
 import AddWordPage from '@/pages/add-word/';
-import { NativeModules } from 'react-native';
 import DevelopmentSettings from './src/pages/DevelopmentSettings';
 import UsageStatsErrorBoundary from '@/shared/ui/UsageStatsErrorBoundary';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import LearningStatsScreen from '@/pages/stats';
 
-const isUsageStatsAvailable = !!NativeModules.UsageStatsModule;
+import { BlockingProvider, useBlocking } from './BlockingContext';
+import { Word } from '@/entity/word/interface';
+import { WordRepository } from '@/entity/word/repository';
+import BlockScreen from '@/pages/BlockScreen';
 
+const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const AppNavigator = () => {
+  const { isBlocked, stopBlocking } = useBlocking();
+  console.log(isBlocked);
+  const navigation = useNavigation();
+  const [blockingWord, setBlockingWord] = useState<Word | null>(null);
+
+  useEffect(() => {
+    const showBlockScreen = async () => {
+      if (isBlocked) {
+        // Fetch a random word to show on the block screen
+        const randomWord = await WordRepository.getRandomUnlearnedWord(); // IMPORTANT: Replace with your actual logic
+        if (randomWord) {
+          setBlockingWord(randomWord);
+          navigation.navigate('BlockScreen', { word: randomWord });
+        } else {
+          // Handle case where no word could be fetched
+          console.error('Could not fetch a word for blocking screen.');
+          stopBlocking(); // Stop blocking if we can't show a word
+        }
+      }
+    };
+
+    showBlockScreen();
+  }, [isBlocked, navigation]);
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="MainTabs"
+        component={TabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="WordPage"
+        component={WordPage}
+        options={{ headerShown: false }}
+      />
+      {/* Add BlockScreen to the Root Stack */}
+      <Stack.Screen
+        name="BlockScreen"
+        component={BlockScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal', // This makes it appear on top of everything
+          gestureEnabled: false, // Prevent swiping it away
+        }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const TabNavigator = () => {
   return (
@@ -66,23 +118,6 @@ const TabNavigator = () => {
   );
 };
 
-const RootStack = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="MainTabs"
-        component={TabNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="WordPage"
-        component={WordPage}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-};
-
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}
@@ -104,16 +139,18 @@ export default function App() {
   }, []);
 
   return (
-    <UsageStatsErrorBoundary>
-      <SafeAreaProvider>
-        <StatusBar
-          backgroundColor={theme.colors.background}
-          barStyle="light-content"
-        />
-        <NavigationContainer>
-          <RootStack />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </UsageStatsErrorBoundary>
+    <BlockingProvider>
+      <UsageStatsErrorBoundary>
+        <SafeAreaProvider>
+          <StatusBar
+            backgroundColor={theme.colors.background}
+            barStyle="light-content"
+          />
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </UsageStatsErrorBoundary>
+    </BlockingProvider>
   );
 }

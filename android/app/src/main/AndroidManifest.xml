@@ -1,12 +1,19 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Default permission for React Native -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Usage Stats Permission -->
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
-    
-    <!-- Standard permissions -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <!-- Required to draw the overlay on top of other apps -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Required to run the overlay service as a foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -15,6 +22,11 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme"
       android:supportsRtl="true">
+
+      <!-- This is the service we created to show the overlay -->
+      <service android:name=".AppBlockerService" />
+
+      <!-- This is your main React Native activity -->
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -27,5 +39,14 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <!--
+        NOTE: I have removed the 'BlockingActivity' and 'UnblockReceiver' declarations
+        because the Kotlin/Java files for them do not exist in our current project.
+        Declaring them here without the code would cause a build failure or a crash.
+        The current implementation uses the AppBlockerService to create an overlay,
+        which achieves the goal without a separate activity.
+      -->
+
     </application>
 </manifest>

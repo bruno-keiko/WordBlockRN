@@ -1,247 +1,92 @@
-// src/components/DevelopmentSettings.tsx
-
+import { LocaleDirContext } from '@react-navigation/native';
+import { useBlocking } from '../../BlockingContext';
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import UsageStatsService from '@/shared/lib/utils/UsageStatsService';
-
-const DevelopmentSettings: React.FC = () => {
-  const [isDevelopmentMode, setIsDevelopmentMode] = useState(true);
-  const [selectedInterval, setSelectedInterval] = useState(5);
-  const [currentUsage, setCurrentUsage] = useState<any>(null);
+import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const DevelopmentSettings = () => {
+  const { isServiceActive, remainingSeconds, startBlocking, stopBlocking } =
+    useBlocking();
+  const [delayMinutes, setDelayMinutes] = useState('15');
 
   useEffect(() => {
-    // Enable development mode by default
-    UsageStatsService.setDevelopmentMode(true, 5);
-    
-    // Check usage every second in development mode
-    const interval = setInterval(checkUsage, 1000);
-    return () => clearInterval(interval);
+    AsyncStorage.getItem('delayMinutes').then(value => {
+      if (value !== null) {
+        setDelayMinutes(value);
+      }
+    });
   }, []);
 
-  const checkUsage = async () => {
-    try {
-      const usage = await UsageStatsService.getCurrentUsage();
-      setCurrentUsage(usage);
-    } catch (error) {
-      console.error('Error checking usage:', error);
-    }
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
   };
-
-  const handleDevelopmentModeToggle = (value: boolean) => {
-    setIsDevelopmentMode(value);
-    
-    if (value) {
-      UsageStatsService.setDevelopmentMode(true, selectedInterval);
-      Alert.alert(
-        'Development Mode Enabled',
-        `App will block after ${selectedInterval} seconds of usage.`,
-        [{ text: 'OK' }]
-      );
-    } else {
-      UsageStatsService.setDevelopmentMode(false);
-      Alert.alert(
-        'Development Mode Disabled',
-        'App will use real usage stats with 15+ minute intervals.',
-        [{ text: 'OK' }]
-      );
-    }
-  };
-
-  const handleIntervalChange = (seconds: number) => {
-    setSelectedInterval(seconds);
-    if (isDevelopmentMode) {
-      UsageStatsService.setDevelopmentMode(true, seconds);
-    }
-  };
-
-  const handleResetUsage = () => {
-    UsageStatsService.resetUsageTracking();
-    Alert.alert('Usage Reset', 'Usage timer has been reset!');
-  };
-
-  const developmentIntervals = UsageStatsService.getDevelopmentIntervals();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🛠️ Development Settings</Text>
-      
-      <View style={styles.setting}>
-        <Text style={styles.settingLabel}>Development Mode</Text>
-        <Switch
-          value={isDevelopmentMode}
-          onValueChange={handleDevelopmentModeToggle}
-          trackColor={{ false: '#767577', true: '#4CAF50' }}
-          thumbColor={isDevelopmentMode ? '#fff' : '#f4f3f4'}
-        />
-      </View>
+      <Text style={styles.title}>App Blocker Settings</Text>
 
-      {isDevelopmentMode && (
-        <>
-          <Text style={styles.sectionTitle}>Block Interval (Development)</Text>
-          {developmentIntervals.map((interval) => (
-            <TouchableOpacity
-              key={interval.value}
-              style={[
-                styles.intervalButton,
-                selectedInterval === interval.value && styles.intervalButtonSelected
-              ]}
-              onPress={() => handleIntervalChange(interval.value)}
-            >
-              <Text style={[
-                styles.intervalButtonText,
-                selectedInterval === interval.value && styles.intervalButtonTextSelected
-              ]}>
-                {interval.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </>
-      )}
-
-      {currentUsage && (
-        <View style={styles.usageInfo}>
-          <Text style={styles.usageTitle}>Current Usage</Text>
-          {currentUsage.isDevelopmentMode ? (
-            <>
-              <Text style={styles.usageText}>
-                Usage: {Math.floor(currentUsage.usageSeconds)}s / {currentUsage.thresholdSeconds}s
-              </Text>
-              <Text style={styles.usageText}>
-                Status: {currentUsage.shouldBlock ? '🔴 BLOCKED' : '🟢 ACTIVE'}
-              </Text>
-            </>
-          ) : (
-            <>
-              <Text style={styles.usageText}>
-                Usage: {Math.floor(currentUsage.usageMinutes)}m / {currentUsage.thresholdMinutes}m
-              </Text>
-              <Text style={styles.usageText}>
-                Status: {currentUsage.shouldBlock ? '🔴 BLOCKED' : '🟢 ACTIVE'}
-              </Text>
-            </>
-          )}
+      {isServiceActive ? (
+        <View style={styles.timerContainer}>
+          <Text style={styles.statusText}>Service is active!</Text>
+          <Text style={styles.timerText}>
+            Blocking in: {formatTime(remainingSeconds)}
+          </Text>
+          <Button title="Stop Service" onPress={stopBlocking} color="#c0392b" />
+        </View>
+      ) : (
+        <View style={styles.controlsContainer}>
+          <Text style={styles.label}>Block after (minutes):</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={delayMinutes}
+            onChangeText={value => {
+              setDelayMinutes(value);
+              AsyncStorage.setItem('delayMinutes', value);
+            }}
+          />
+          <Button
+            title="Start Blocking Service"
+            onPress={() => startBlocking(parseInt(delayMinutes, 10))}
+          />
         </View>
       )}
 
-      <TouchableOpacity style={styles.resetButton} onPress={handleResetUsage}>
-        <Text style={styles.resetButtonText}>Reset Usage Timer</Text>
-      </TouchableOpacity>
-
-      <View style={styles.info}>
-        <Text style={styles.infoText}>
-          💡 Development mode uses a simple timer instead of Android's UsageStatsManager.
-          This allows for testing with intervals as short as 5 seconds.
-        </Text>
-        <Text style={styles.infoText}>
-          📱 Production mode requires 15+ minute intervals due to Android system limitations.
-        </Text>
-      </View>
+      <Text style={styles.info}>
+        Note: You must grant all required permissions for this to work.
+      </Text>
     </View>
   );
 };
 
+// Add some basic styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  setting: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '500',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    color: '#fff',
-    fontWeight: '600',
-    marginBottom: 15,
-    marginTop: 10,
-  },
-  intervalButton: {
-    backgroundColor: '#2a2a2a',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+  timerContainer: { alignItems: 'center' },
+  statusText: { fontSize: 18, color: 'green', marginBottom: 10 },
+  timerText: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+  controlsContainer: { width: '100%', alignItems: 'center' },
+  label: { fontSize: 16, marginBottom: 5 },
+  input: {
+    height: 40,
+    width: '50%',
+    borderColor: 'gray',
     borderWidth: 1,
-    borderColor: '#444',
-  },
-  intervalButtonSelected: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  intervalButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    borderRadius: 5,
+    marginBottom: 20,
     textAlign: 'center',
+    fontSize: 18,
   },
-  intervalButtonTextSelected: {
-    fontWeight: 'bold',
-  },
-  usageInfo: {
-    backgroundColor: '#2a2a2a',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  usageTitle: {
-    fontSize: 16,
-    color: '#4CAF50',
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  usageText: {
-    fontSize: 14,
-    color: '#ddd',
-    marginBottom: 5,
-  },
-  resetButton: {
-    backgroundColor: '#FF9800',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  resetButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  info: {
-    backgroundColor: '#2a2a2a',
-    padding: 15,
-    borderRadius: 10,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#aaa',
-    lineHeight: 20,
-    marginBottom: 10,
-  },
+  info: { marginTop: 30, textAlign: 'center', color: '#666' },
 });
 
 export default DevelopmentSettings;
