@@ -14,6 +14,8 @@ export type TabParamList = {
 
 export type RootStackParamList = {
   MainTabs: undefined;
+  PermissionSetup: undefined;
+  AppNavigator: undefined;
   WordPage: { word: Word };
   BlockScreen: { word: Word };
 };

@@ -1,4 +1,3 @@
-import { LocaleDirContext } from '@react-navigation/native';
 import { useBlocking } from '../../BlockingContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';

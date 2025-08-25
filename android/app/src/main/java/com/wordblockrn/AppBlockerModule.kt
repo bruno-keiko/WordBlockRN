@@ -77,4 +77,24 @@ class AppBlockerModule(reactContext: ReactApplicationContext) : ReactContextBase
         // It reads the static 'currentState' from the service and returns its name as a string.
         promise.resolve(AppBlockerService.currentState.name)
     }
+
+    @ReactMethod
+    fun checkOverlayPermission(promise: Promise) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            promise.resolve(Settings.canDrawOverlays(reactApplicationContext))
+        } else {
+            promise.resolve(true) // Granted by default on older versions
+        }
+    }
+
+    @ReactMethod
+    fun checkUsageStatsPermission(promise: Promise) {
+        val appOps = reactApplicationContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            android.os.Process.myUid(),
+            reactApplicationContext.packageName
+        )
+        promise.resolve(mode == AppOpsManager.MODE_ALLOWED)
+    }
 }

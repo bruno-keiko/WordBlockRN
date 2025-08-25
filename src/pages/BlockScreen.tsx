@@ -10,8 +10,7 @@ import {
 import { Word } from '@/entity/word/interface';
 import { theme } from '@/shared/constants/theme';
 import { LearningStatsRepository } from '@/entity/statistics/repository';
-import { useBlocking } from '../../BlockingContext'; // Import the hook
-import { useNavigation } from '@react-navigation/native';
+import { useBlocking } from '../../BlockingContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/shared/types/navigaiton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,7 +28,6 @@ const BlockScreen: React.FC<BlockScreenProps> = ({ route, navigation }) => {
   const [startTime] = useState(Date.now());
 
   useEffect(() => {
-    // Prevent back button from bypassing the block
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
@@ -38,7 +36,7 @@ const BlockScreen: React.FC<BlockScreenProps> = ({ route, navigation }) => {
           'You must complete the learning session to continue using the app.',
           [{ text: 'OK' }],
         );
-        return true; // Prevent default back action
+        return true;
       },
     );
 
@@ -46,12 +44,9 @@ const BlockScreen: React.FC<BlockScreenProps> = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
-    // Timer to track time spent on learning screen
     const timer = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       setTimeSpent(elapsed);
-
-      // Enable proceed button after 20 seconds
       if (elapsed >= 20) {
         setCanProceed(true);
       }
